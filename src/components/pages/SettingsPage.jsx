@@ -36,7 +36,35 @@ const SettingsPage = () => {
     // 存储设置
     storageQuota: 50, // GB
     autoCleanup: true,
-    cleanupDays: 30
+    cleanupDays: 30,
+    
+    // 协议配置
+    ftpConfig: {
+      enabled: true,
+      host: '',
+      port: 21,
+      username: '',
+      password: '',
+      anonymousLogin: false,
+      mode: 'passive', // 'active' or 'passive'
+      tlsSsl: 'none' // 'none', 'explicit', 'implicit'
+    },
+    sftpConfig: {
+      enabled: false,
+      host: '',
+      port: 22,
+      username: '',
+      password: '',
+      privateKey: '',
+      useKeyAuth: false
+    },
+    webdavConfig: {
+      enabled: false,
+      url: '',
+      username: '',
+      password: '',
+      basePath: '/'
+    }
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -69,6 +97,30 @@ const SettingsPage = () => {
         ...prev,
         emailNotifications: {
           ...prev.emailNotifications,
+          [field]: value
+        }
+      }));
+    } else if (category === 'ftpConfig') {
+      setSettings(prev => ({
+        ...prev,
+        ftpConfig: {
+          ...prev.ftpConfig,
+          [field]: value
+        }
+      }));
+    } else if (category === 'sftpConfig') {
+      setSettings(prev => ({
+        ...prev,
+        sftpConfig: {
+          ...prev.sftpConfig,
+          [field]: value
+        }
+      }));
+    } else if (category === 'webdavConfig') {
+      setSettings(prev => ({
+        ...prev,
+        webdavConfig: {
+          ...prev.webdavConfig,
           [field]: value
         }
       }));
@@ -118,7 +170,33 @@ const SettingsPage = () => {
         compactMode: false,
         storageQuota: 50,
         autoCleanup: true,
-        cleanupDays: 30
+        cleanupDays: 30,
+        ftpConfig: {
+          enabled: true,
+          host: '',
+          port: 21,
+          username: '',
+          password: '',
+          anonymousLogin: false,
+          mode: 'passive',
+          tlsSsl: 'none'
+        },
+        sftpConfig: {
+          enabled: false,
+          host: '',
+          port: 22,
+          username: '',
+          password: '',
+          privateKey: '',
+          useKeyAuth: false
+        },
+        webdavConfig: {
+          enabled: false,
+          url: '',
+          username: '',
+          password: '',
+          basePath: '/'
+        }
       });
       setSaveMessage('设置已重置为默认值！');
       setTimeout(() => setSaveMessage(''), 3000);
@@ -498,6 +576,274 @@ const SettingsPage = () => {
               <button className="delete-btn">删除账户</button>
               <p className="setting-description warning">此操作不可撤销，请谨慎操作</p>
             </div>
+          </div>
+        </div>
+
+        {/* 协议配置 */}
+        <div className="settings-section">
+          <h2>协议配置</h2>
+          <div className="settings-grid">
+            {/* FTP配置 */}
+            <div className="setting-item toggle">
+              <div className="toggle-label">
+                <span className="detail-label">FTP：</span>
+                <p className="setting-description">启用FTP文件传输协议</p>
+              </div>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={settings.ftpConfig.enabled}
+                  onChange={(e) => handleChange('ftpConfig', 'enabled', e.target.checked)}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+            
+            {settings.ftpConfig.enabled && (
+              <>
+                <div className="setting-item">
+                  <span className="detail-label">主机地址：</span>
+                  <input
+                    type="text"
+                    value={settings.ftpConfig.host}
+                    onChange={(e) => handleChange('ftpConfig', 'host', e.target.value)}
+                    className="edit-input"
+                    placeholder="ftp.example.com"
+                  />
+                </div>
+                
+                <div className="setting-item">
+                  <span className="detail-label">端口：</span>
+                  <input
+                    type="number"
+                    value={settings.ftpConfig.port}
+                    onChange={(e) => handleChange('ftpConfig', 'port', parseInt(e.target.value))}
+                    className="edit-input"
+                    min="1"
+                    max="65535"
+                  />
+                </div>
+                
+                <div className="setting-item">
+                  <span className="detail-label">用户名：</span>
+                  <input
+                    type="text"
+                    value={settings.ftpConfig.username}
+                    onChange={(e) => handleChange('ftpConfig', 'username', e.target.value)}
+                    className="edit-input"
+                    placeholder="用户名"
+                  />
+                </div>
+                
+                <div className="setting-item">
+                  <span className="detail-label">密码：</span>
+                  <input
+                    type="password"
+                    value={settings.ftpConfig.password}
+                    onChange={(e) => handleChange('ftpConfig', 'password', e.target.value)}
+                    className="edit-input"
+                    placeholder="密码"
+                  />
+                </div>
+                
+                <div className="setting-item toggle">
+                  <div className="toggle-label">
+                    <span className="detail-label">匿名登录：</span>
+                    <p className="setting-description">允许匿名用户登录</p>
+                  </div>
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={settings.ftpConfig.anonymousLogin}
+                      onChange={(e) => handleChange('ftpConfig', 'anonymousLogin', e.target.checked)}
+                    />
+                    <span className="slider"></span>
+                  </label>
+                </div>
+                
+                <div className="setting-item">
+                  <span className="detail-label">传输模式：</span>
+                  <select
+                    value={settings.ftpConfig.mode}
+                    onChange={(e) => handleChange('ftpConfig', 'mode', e.target.value)}
+                    className="edit-input"
+                  >
+                    <option value="passive">被动模式 (Passive)</option>
+                    <option value="active">主动模式 (Active)</option>
+                  </select>
+                </div>
+                
+                <div className="setting-item">
+                  <span className="detail-label">TLS/SSL：</span>
+                  <select
+                    value={settings.ftpConfig.tlsSsl}
+                    onChange={(e) => handleChange('ftpConfig', 'tlsSsl', e.target.value)}
+                    className="edit-input"
+                  >
+                    <option value="none">无 (None)</option>
+                    <option value="explicit">显式 FTPS (Explicit SFTP)</option>
+                    <option value="implicit">隐式 FTPS (Implicit SFTP)</option>
+                  </select>
+                </div>
+              </>
+            )}
+            
+            {/* SFTP配置 */}
+            <div className="setting-item toggle">
+              <div className="toggle-label">
+                <span className="detail-label">SFTP：</span>
+                <p className="setting-description">启用SSH文件传输协议</p>
+              </div>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={settings.sftpConfig.enabled}
+                  onChange={(e) => handleChange('sftpConfig', 'enabled', e.target.checked)}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+            
+            {settings.sftpConfig.enabled && (
+              <>
+                <div className="setting-item">
+                  <span className="detail-label">主机地址：</span>
+                  <input
+                    type="text"
+                    value={settings.sftpConfig.host}
+                    onChange={(e) => handleChange('sftpConfig', 'host', e.target.value)}
+                    className="edit-input"
+                    placeholder="sftp.example.com"
+                  />
+                </div>
+                
+                <div className="setting-item">
+                  <span className="detail-label">端口：</span>
+                  <input
+                    type="number"
+                    value={settings.sftpConfig.port}
+                    onChange={(e) => handleChange('sftpConfig', 'port', parseInt(e.target.value))}
+                    className="edit-input"
+                    min="1"
+                    max="65535"
+                  />
+                </div>
+                
+                <div className="setting-item">
+                  <span className="detail-label">用户名：</span>
+                  <input
+                    type="text"
+                    value={settings.sftpConfig.username}
+                    onChange={(e) => handleChange('sftpConfig', 'username', e.target.value)}
+                    className="edit-input"
+                    placeholder="用户名"
+                  />
+                </div>
+                
+                <div className="setting-item toggle">
+                  <div className="toggle-label">
+                    <span className="detail-label">密钥认证：</span>
+                    <p className="setting-description">使用SSH密钥进行认证</p>
+                  </div>
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={settings.sftpConfig.useKeyAuth}
+                      onChange={(e) => handleChange('sftpConfig', 'useKeyAuth', e.target.checked)}
+                    />
+                    <span className="slider"></span>
+                  </label>
+                </div>
+                
+                {settings.sftpConfig.useKeyAuth ? (
+                  <div className="setting-item">
+                    <span className="detail-label">私钥内容：</span>
+                    <textarea
+                      value={settings.sftpConfig.privateKey}
+                      onChange={(e) => handleChange('sftpConfig', 'privateKey', e.target.value)}
+                      className="edit-input"
+                      placeholder="-----BEGIN RSA PRIVATE KEY-----"
+                      rows="4"
+                    />
+                  </div>
+                ) : (
+                  <div className="setting-item">
+                    <span className="detail-label">密码：</span>
+                    <input
+                      type="password"
+                      value={settings.sftpConfig.password}
+                      onChange={(e) => handleChange('sftpConfig', 'password', e.target.value)}
+                      className="edit-input"
+                      placeholder="密码"
+                    />
+                  </div>
+                )}
+              </>
+            )}
+            
+            {/* WebDAV配置 */}
+            <div className="setting-item toggle">
+              <div className="toggle-label">
+                <span className="detail-label">WebDAV：</span>
+                <p className="setting-description">启用WebDAV文件共享协议</p>
+              </div>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={settings.webdavConfig.enabled}
+                  onChange={(e) => handleChange('webdavConfig', 'enabled', e.target.checked)}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+            
+            {settings.webdavConfig.enabled && (
+              <>
+                <div className="setting-item">
+                  <span className="detail-label">服务器URL：</span>
+                  <input
+                    type="url"
+                    value={settings.webdavConfig.url}
+                    onChange={(e) => handleChange('webdavConfig', 'url', e.target.value)}
+                    className="edit-input"
+                    placeholder="https://webdav.example.com"
+                  />
+                </div>
+                
+                <div className="setting-item">
+                  <span className="detail-label">用户名：</span>
+                  <input
+                    type="text"
+                    value={settings.webdavConfig.username}
+                    onChange={(e) => handleChange('webdavConfig', 'username', e.target.value)}
+                    className="edit-input"
+                    placeholder="用户名"
+                  />
+                </div>
+                
+                <div className="setting-item">
+                  <span className="detail-label">密码：</span>
+                  <input
+                    type="password"
+                    value={settings.webdavConfig.password}
+                    onChange={(e) => handleChange('webdavConfig', 'password', e.target.value)}
+                    className="edit-input"
+                    placeholder="密码"
+                  />
+                </div>
+                
+                <div className="setting-item">
+                  <span className="detail-label">基础路径：</span>
+                  <input
+                    type="text"
+                    value={settings.webdavConfig.basePath}
+                    onChange={(e) => handleChange('webdavConfig', 'basePath', e.target.value)}
+                    className="edit-input"
+                    placeholder="/"
+                  />
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
